@@ -29,6 +29,7 @@ GIT_TREE_STATE := $(if $(shell git status --porcelain --untracked-files=no),dirt
 VERSION := $(shell cat VERSION)
 
 BUILDTAGS := netgo osusergo seccomp
+BUILDTAGSOSX := netgo osusergo 
 BUILD_FILES := $(shell find . -type f -name '*.go' -or -name '*.mod' -or -name '*.sum' -not -name '*_test.go')
 export GOFLAGS?=-mod=mod
 GO_PROJECT := sigs.k8s.io/$(PROJECT)
@@ -88,7 +89,11 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
 $(BUILD_DIR)/$(PROJECT): $(BUILD_DIR) $(BUILD_FILES)
+ifneq ($(shell uname -s), Darwin)
 	$(GO) build -ldflags '$(LDFLAGS)' -tags '$(BUILDTAGS)' -o $@ ./cmd/security-profiles-operator
+else
+	$(GO) build -ldflags '$(LDFLAGS)' -tags '$(BUILDTAGSOSX)' -o $@ ./cmd/security-profiles-operator
+endif
 
 .PHONY: clean
 clean: ## Clean the build directory
@@ -150,8 +155,13 @@ $(BUILD_DIR)/golangci-lint:
 
 .PHONY: test-unit
 test-unit: $(BUILD_DIR) ## Run the unit tests
+ifneq ($(shell uname -s), Darwin)
 	$(GO) test -ldflags '$(LDVARS)' -tags '$(BUILDTAGS)' -v -test.coverprofile=$(BUILD_DIR)/coverage.out ./internal/...
 	$(GO) tool cover -html $(BUILD_DIR)/coverage.out -o $(BUILD_DIR)/coverage.html
+else
+	$(GO) test -ldflags '$(LDVARS)' -tags '$(BUILDTAGSOSX)' -v -test.coverprofile=$(BUILD_DIR)/coverage.out ./internal/...
+	$(GO) tool cover -html $(BUILD_DIR)/coverage.out -o $(BUILD_DIR)/coverage.html
+endif
 
 .PHONY: test-e2e
 test-e2e: ## Run the end-to-end tests
