@@ -21,6 +21,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -35,9 +36,10 @@ import (
 )
 
 const (
-	kindVersion = "v0.9.0"
-	kindSHA512  = "e7152acf5fd7a4a56af825bda64b1b8343a1f91588f9b3ddd5420ae5c5a95577d87431f2e417a7e03dd23914e1da9bed855ec19d0c4602729b311baccb30bd7f" // nolint: lll
-	kindImage   = "kindest/node:v1.19.1"
+	kindVersion   = "v0.9.0"
+	kindSHA512    = "e7152acf5fd7a4a56af825bda64b1b8343a1f91588f9b3ddd5420ae5c5a95577d87431f2e417a7e03dd23914e1da9bed855ec19d0c4602729b311baccb30bd7f" // nolint: lll
+	kindOSXSHA512 = "1b716be0c6371f831718bb9f7e502533eb993d3648f26cf97ab47c2fa18f55c7442330bba62ba822ec11edb84071ab616696470cbdbc41895f2ae9319a7e3a99" // nolint: lll
+	kindImage     = "kindest/node:v1.19.1"
 )
 
 var (
@@ -105,11 +107,21 @@ func (e *kinde2e) SetupSuite() {
 	e.Nil(os.MkdirAll(buildDir, 0o755))
 
 	e.kindPath = filepath.Join(buildDir, "kind")
-	e.downloadAndVerify(
-		"https://github.com/kubernetes-sigs/kind/releases/download/"+
-			kindVersion+"/kind-linux-amd64",
-		e.kindPath, kindSHA512,
-	)
+	operatingSystem := runtime.GOOS
+	switch operatingSystem {
+	case "darwin":
+		e.downloadAndVerify(
+			"https://github.com/kubernetes-sigs/kind/releases/download/"+
+				kindVersion+"/kind-darwin-amd64",
+			e.kindPath, kindOSXSHA512,
+		)
+	case "linux":
+		e.downloadAndVerify(
+			"https://github.com/kubernetes-sigs/kind/releases/download/"+
+				kindVersion+"/kind-linux-amd64",
+			e.kindPath, kindSHA512,
+		)
+	}
 
 	e.kubectlPath, err = exec.LookPath("kubectl")
 	e.Nil(err)
