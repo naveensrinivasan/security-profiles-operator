@@ -1,9 +1,10 @@
-name: osxbuild
+# Inlcuding the tests with ubuntu to get actual test coverage. The OSX builds skip seccomp tests.
+name: test-coverage
 on: [push, pull_request]
 jobs:
   validate:
     name: Validate 
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     # Pull requests from the same repository won't trigger this checks as they were already triggered by the push
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     steps:
@@ -13,5 +14,13 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: '^1.15'
+      - name: Install libseccomp-dev
+        run: |
+          sudo apt update
+          sudo apt install -y libseccomp-dev
       - name: unit test
         run: make test-unit
+      - name: Send the coverage output
+        uses: shogo82148/actions-goveralls@v1
+        with:
+          path-to-profile: build/coverage.out

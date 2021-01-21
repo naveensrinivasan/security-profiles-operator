@@ -1,3 +1,5 @@
+[![Coverage Status](https://coveralls.io/repos/github/kubernetes-sigs/security-profiles-operator/badge.svg?branch=master)](https://coveralls.io/github/kubernetes-sigs/security-profiles-operator?branch=master)
+
 # Kubernetes Security Profiles Operator
 
 This project is the starting point for the _Security Profiles Operator_, an
