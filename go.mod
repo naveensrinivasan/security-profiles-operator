@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/cirocosta/dmesg_exporter v0.0.0-20190515130104-6e3e42fc8d7b
-	github.com/containers/common v0.34.2
+	github.com/containers/common v0.37.0
 	github.com/crossplane/crossplane-runtime v0.12.0
 	github.com/go-logr/logr v0.4.0
 	github.com/pkg/errors v0.9.1
